@@ -191,6 +191,7 @@ int trainDanceImTired(struct trainDance* train, char* name) {
             prev->next = current->next;
             if(current == train->first)
                 train->first = current->next;
+            free(current->name);
             free(current);
             train->count --;
             return 0;
@@ -204,12 +205,14 @@ int trainDanceImTired(struct trainDance* train, char* name) {
 }
 
 struct node* ultimo_nodo(struct trainDance* train) {
+    // printf("ENTRO ACA\ns");
     if (!train || train->count == 0) return NULL;
     struct node* current = train->first;
     int cant_personas = train->count;
 
     while (cant_personas > 1 && current->next != train->first)
         current = current->next;
+    // printf("LLEGO HASTA ACA -> ultimo = %s\n", current->name);
 
     return current;
 }
@@ -220,8 +223,6 @@ void trainDanceGotToMosh(struct trainDance** train, struct trainDance** trainMos
     int cant_max_pogo = cant_personas - 2;
     int cant_grupo = trainDanceGroupCount(*train, groupMosh);
 
-   // printf("\nPersonas: %d\nMax pogo:%d\n#Grupo%i: %d", cant_personas,cant_max_pogo,groupMosh,cant_grupo);
-
     if (cant_personas < 4 || cant_grupo < 2 || cant_grupo > cant_max_pogo) {
         *trainMosh = NULL;
         *trainRemains = NULL;
@@ -230,50 +231,81 @@ void trainDanceGotToMosh(struct trainDance** train, struct trainDance** trainMos
 
     struct node*  prev = ultimo_nodo(*train);
     struct node* current = (*train)->first;
-    struct node* prox = prev->next;
 
-    for(int i = 0, j = 0; i < cant_personas, j < cant_grupo; i++){
-        prev->next = current->next;
-        if (current->group == groupMosh) {
-            if (j = 0) {
-                current->next = NULL;
-                (*trainMosh)->first = current;
-            }
-            // else if (j = 1) {
-            //     (*trainMosh)->first->next = current;
-            // }
-            else {
-                current->next = (*trainMosh)->first;
-                struct node* ultimo = ultimo_nodo(*trainMosh);
-                ultimo->next = current;
-            }
-            if (i = 0)
-                (*train)->first = prev->next; //current->next
+    for(int i = 0, j = 0, k = 0; i < cant_personas; i++){
+        if (current->group == groupMosh && j < 2) {
+            struct node* primero;
+            struct node* segundo;
+
+            if (j == 0) {
+                primero = current;
+            } else if (j == 1){
+                segundo = current;
+                char* nom1 = primero->name;
+                char* nom2 = segundo->name;
+                *trainMosh = trainDanceNew(nom1, groupMosh, nom2, groupMosh);
+            } 
             j++;
-            (*trainMosh)->count ++;
+
+        } else if (current->group == groupMosh && j < cant_max_pogo){
+            struct node* primero = (*trainMosh)->first;
+            struct node* ultimo = ultimo_nodo(*trainMosh);
+
+            char* nom1 = primero->name;
+            char* nom2 = ultimo->name;
+            char* nomNew = current->name;
+
+            trainDanceAddToDance(*trainMosh, nom2, nom1, nomNew, groupMosh);
+            j++;
+        } else if ( k < 2) {
+            struct node* primero;
+            struct node* segundo;
+
+            if (k == 0) {
+                primero = current;
+            } else if (k == 1){
+                segundo = current;
+                char* nom1 = primero->name;
+                char* nom2 = segundo->name;
+                int grupo1 = primero->group;
+                int grupo2 = segundo->group;
+                *trainRemains = trainDanceNew(nom1, grupo1, nom2, grupo2);
+            } 
+            k++;
 
         } else {
-            if ((*trainRemains)->count = 0){
-                current->next = NULL;
-                (*trainRemains)->first = current;
-            } else {
-                current->next = (*trainRemains)->first;
-                struct node* ultimo = ultimo_nodo(*trainRemains);
-                ultimo->next = current;
-            }
-            //prev->next = current->next;
-            (*trainRemains)->count ++;
+            struct node* primero = (*trainRemains)->first;
+            struct node* ultimo = ultimo_nodo(*trainRemains);
+
+            char* nom1 = primero->name;
+            char* nom2 = ultimo->name;
+            char* nomNew = current->name;
+            int grupoNew = current->group;
+
+            trainDanceAddToDance(*trainRemains, nom2, nom1, nomNew, grupoNew);
+            k++;
         }
         prev = prev->next;
         current = current->next;
-        (*train)->count --;
     }
+
+   //trainDanceDelete(*train);
 }
 
 void trainDanceDelete(struct trainDance* train) {
+    printf("ENTRO ACA\n");
+    printf("el trencito tiene %i personas", train->count);
+    if (!train || train->count == 0) return;
+    printf("SIGO ACA\n");
 
-    // COMPLETAR
-
+    struct node* n = train->first;
+    do {
+        struct node* toDelete = n;
+        n = n->next;
+        free(toDelete->name);
+        free(toDelete);
+    } while ( n != train->first );
+    free(train);
 }
 
 void trainDancePrint(struct trainDance* train) {
@@ -284,3 +316,80 @@ void trainDancePrint(struct trainDance* train) {
         n = n->next;
     } while ( n != train->first );
 }
+
+
+/*
+void trainDanceGotToMosh(struct trainDance** train, struct trainDance** trainMosh, struct trainDance** trainRemains, int groupMosh) {
+    if (!train ) return;
+    int cant_personas = (*train)->count;
+    int cant_max_pogo = cant_personas - 2;
+    int cant_grupo = trainDanceGroupCount(*train, groupMosh);
+    printf("#Grupo%i = %d", groupMosh, cant_grupo);
+//    printf("\nPersonas: %d\nMax pogo:%d\n#Grupo%i: %d", cant_personas,cant_max_pogo,groupMosh,cant_grupo);
+
+    if (cant_personas < 4 || cant_grupo < 2 || cant_grupo > cant_max_pogo) {
+        *trainMosh = NULL;
+        *trainRemains = NULL;
+        return;
+    } else {
+        printf("ENTRO ACA \n");
+
+        (*trainMosh)->count = 0;
+        (*trainRemains)->count = 0;
+    }
+
+    struct node*  prev = ultimo_nodo(*train);
+    struct node* current = (*train)->first;
+    // printf("\nprev = %s", prev->name);
+    // printf("\ncurrent = %s", current->name);
+    // struct node* prox = prev->next;
+
+    for(int i = 0; i < cant_personas; i++){
+        printf("ENTRO ACA \n");
+        if (i == cant_personas -2) 
+            (*train)->first = prev;
+        else {
+
+            printf("\nprev->next = %s", prev->next->name);
+            printf("\ncurrent->next = %s", current->next->name);
+            printf("(*train)->first = %s", (*train)->first->name);
+            // prev->next = current->next;
+            // (*train)->first = prev->next; //current->next
+            // current->next = NULL;
+            // printf("\nprev->next = %s", prev->next->name);
+            // printf("\ncurrent->next = %s", current->next->name);
+            // printf("(*train)->first = %s", (*train)->first->name);
+        }
+
+        if (current->group == groupMosh && (*trainMosh)->count < cant_max_pogo) {
+            if ((*trainMosh)->count == 0) {
+                // current->next = NULL;
+                (*trainMosh)->first = current;
+            } else {
+                struct node* ultimo = ultimo_nodo(*trainMosh);
+                ultimo->next = current;
+                current->next = (*trainMosh)->first;
+            }
+            // if (i = 0)
+            // (*train)->first = prev->next; //current->next
+            (*trainMosh)->count ++;
+
+        } else {
+            if ((*trainRemains)->count == 0){
+                // current->next = NULL;
+                (*trainRemains)->first = current;
+            } else {
+                struct node* ultimo = ultimo_nodo(*trainRemains);
+                ultimo->next = current;
+                current->next = (*trainRemains)->first;
+            }
+            //prev->next = current->next;
+            // (*train)->first = prev->next; //current->next
+            (*trainRemains)->count ++;
+        }
+        // prev = prev->next;
+        current = (*train)->first;
+        (*train)->count --;
+    }
+}
+*/
