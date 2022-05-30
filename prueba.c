@@ -25,8 +25,10 @@ char* strConcatenate(char* s1, char* s2){
         snew[i] = s2[t];
         t++;
     }
- 
-  return snew;
+    free(s1);
+    free(s2);
+
+    return snew;
 }
 
 int strCompare(char* a, char* b) {
@@ -109,12 +111,15 @@ struct node* trainDanceGetNode(struct trainDance* train, char* name) {
     return NULL;
 }
 
-int cantidad_string(struct trainDance* train) {
+int cantidad_string(struct trainDance* train, char* separator) {
     int tamano_string = 0;
     struct node* current = train->first;
 
     for (int i = 0; i < train->count; i++) {
-        tamano_string += length(current->name) + 1; //sumo 1 para contar el caracter nulo
+        if (i != train->count -1)
+            tamano_string += length(current->name) + length(separator); //sumo para contar el separador
+        else
+            tamano_string += length(current->name) + 1; //sumo 1 para contar el caracter nulo
 
         current = current->next;
     }
@@ -135,19 +140,23 @@ int trainDanceGroupCount(struct trainDance* train, int group) {
 }
 
 char* trainDanceGetNames(struct trainDance* train, char* separator) {
-    int cantidad_caracteres = cantidad_string(train);
-    char* nombres = (char*)malloc((sizeof(char))*cantidad_caracteres);
+    char* nombres ;
     int cant_personas = train->count;
     struct node* current = train->first;
 
     for(int i = 1; i <= cant_personas; i++){
-        nombres = strConcatenate(nombres, current->name);
+        
+        if (i == 1)
+            nombres = strDuplicate(current->name);
+        else 
+            nombres = strConcatenate(nombres, strDuplicate(current->name));
+   
         if (i < cant_personas)
-        nombres = strConcatenate(nombres, separator);
-
+             nombres = strConcatenate(nombres, strDuplicate(separator));
+    
         current = current->next;
     }
-
+  
     return nombres;
 }
 
@@ -220,10 +229,10 @@ struct node* ultimo_nodo(struct trainDance* train) {
 void trainDanceGotToMosh(struct trainDance** train, struct trainDance** trainMosh, struct trainDance** trainRemains, int groupMosh) {
     if (!train ) return;
     int cant_personas = (*train)->count;
-    int cant_max_pogo = cant_personas - 2;
     int cant_grupo = trainDanceGroupCount(*train, groupMosh);
+    int cant_remains = cant_personas - cant_grupo;
 
-    if (cant_personas < 4 || cant_grupo < 2 || cant_grupo > cant_max_pogo) {
+    if (cant_personas < 4 || cant_grupo < 2 || cant_remains < 2) {
         *trainMosh = NULL;
         *trainRemains = NULL;
         return;
@@ -247,7 +256,7 @@ void trainDanceGotToMosh(struct trainDance** train, struct trainDance** trainMos
             } 
             j++;
 
-        } else if (current->group == groupMosh && j < cant_max_pogo){
+        } else if (current->group == groupMosh){
             struct node* primero = (*trainMosh)->first;
             struct node* ultimo = ultimo_nodo(*trainMosh);
 
@@ -289,7 +298,8 @@ void trainDanceGotToMosh(struct trainDance** train, struct trainDance** trainMos
         current = current->next;
     }
 
-   //trainDanceDelete(*train);
+   trainDanceDelete(*train);
+   *train = NULL;
 }
 
 void trainDanceDelete(struct trainDance* train) {
