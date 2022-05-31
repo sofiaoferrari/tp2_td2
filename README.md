@@ -30,5 +30,6 @@ Trabajo Practico 2 - TDII
 
   > Compilacion:
                  make
+                 
   > Ejecucion:
                  ./main.out
