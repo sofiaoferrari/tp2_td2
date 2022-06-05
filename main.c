@@ -124,14 +124,14 @@ int main() {
     result = trainDanceAddToDance(td, "Agatha", "Matias", "Pepo", 2);
     printf("\ttrainDanceAddToDance(td, \"Agatha\",\"Matias\",\"Pepo\",2) -> %i - ",result);
     trainDancePrint(td);
-    printf("\n\n");
+    printf("\n");
     
-    printf("\n  > Agrego una persona al final del trencito:\n");
+    printf("\n  > Agrego una persona al principio del trencito:\n");
     result = trainDanceAddToDance(td3, "Matias", "Agatha", "Carla", 2);
     printf("\ttrainDanceAddToDance(td3, \"Matias\",\"Agatha\",\"Carla\",2) -> %i - ",result);
     trainDancePrint(td3);
     printf("\n");
-    printf("\n  > Agrego una persona al principio del trencito:\n");
+    printf("\n  > Agrego una persona al final del trencito:\n");
     result = trainDanceAddToDance(td3, "Agatha", "Matias", "Pepo", 2);
     printf("\ttrainDanceAddToDance(td3, \"Agatha\",\"Matias\",\"Pepo\",2) -> %i - ",result);
     trainDancePrint(td3);
@@ -153,7 +153,7 @@ int main() {
 
     //agrego dos personas mas al tren de prueba tdM
     result = trainDanceAddToDance(tdM, "Matias", "Agatha", "Carla", 2);
-    result = trainDanceAddToDance(tdM, "Agatha", "Matias", "Pepo", 1);
+    result = trainDanceAddToDance(tdM, "Agatha", "Matias", "Pepo", 3);
 
     //-------------------------------trainDanceGetNode-------------------------------
     printf("\n\n~ Prueba trainDanceGetNode()\n");
@@ -193,13 +193,13 @@ int main() {
     result = trainDanceImTired(td, "Matias");
     printf("\ttrainDanceImTired(td, \"Matias\") -> %i - ",result);
     trainDancePrint(td);
-    printf("\n\n");
+    printf("\n");
 
     printf("\n  > Pruebo quitar a una persona de un trencito de dos:\n");
     result = trainDanceImTired(tdt, "Agatha");
     printf("\ttrainDanceImTired(tdt, \"Agatha\") -> %i - ",result);
     trainDancePrint(tdt);
-    printf("\n\n");
+    printf("\n");
 
     printf("\n  > Pruebo quitar al ultimo de un trencito de al menos 3 personas:\n");
     result = trainDanceImTired(td3, "Pepo");
@@ -269,9 +269,9 @@ int main() {
     
     //2 remains, 1 pogo
     printf("\n  > Prueba con un trencito de 2 personas y solo uno para hacer pogo:\n");
-    trainDanceGotToMosh(&td3, &tdr, &tdm, 1);
-    printf("\ttrainDanceGotToMosh(&td3, &tdr, &tdm, 1) -> ");
-    if(td3 != 0) trainDancePrint(td3); else printf("0");
+    trainDanceGotToMosh(&tdt, &tdr, &tdm, 1);
+    printf("\ttrainDanceGotToMosh(&tdt, &tdr, &tdm, 1) -> ");
+    if(tdt != 0) trainDancePrint(tdt); else printf("0");
     printf(" - ");
     if(tdr != 0) trainDancePrint(tdr); else printf("0");
     printf(" - ");
@@ -280,9 +280,9 @@ int main() {
     
     //2 pogo, 1 remains
     printf("\n  > Prueba con un trencito de 3 personas y dos para hacer pogo:\n");
-    trainDanceGotToMosh(&tdM1, &tdr, &tdm, 2);
+    trainDanceGotToMosh(&td3, &tdr, &tdm, 2);
     printf("\ttrainDanceGotToMosh(&td3, &tdr, &tdm, 2) -> ");
-    if(tdM1 != 0) trainDancePrint(tdM1); else printf("0");
+    if(td3 != 0) trainDancePrint(td3); else printf("0");
     printf(" - ");
     if(tdr != 0) trainDancePrint(tdr); else printf("0");
     printf(" - ");
